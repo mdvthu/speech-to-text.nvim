@@ -25,6 +25,13 @@ Plug 'eyalk11/speech-to-text.nvim'
 or with [Vundle](https://github.com/VundleVim/Vundle.vim):
 ```
 Plugin 'eyalk11/speech-to-text.nvim'
+PluginInstall
+```
+
+Before running `UpdateRemotePlugins`, check the Python provider of your VIM
+installation:
+```
+:CheckHealth
 ```
 
 
