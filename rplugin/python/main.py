@@ -1,26 +1,33 @@
 # Thanks https://vi.stackexchange.com/users/23502/vivian-de-smedt
 # for the help with the plugin.
-import keyboard
 import asyncio
-import yaml
-import neovim
-import speech_recognition as sr
 import concurrent.futures
-
 import os
-DEFAULT_CONFIG_PATH =os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../voice_config.yaml")
+
+import debugpy
+import keyboard
+import neovim
 import nest_asyncio
-nest_asyncio.apply() #bad practice, but the situation is problematic
+import speech_recognition as sr
+import yaml
+
+DEFAULT_CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   "../../voice_config.yaml")
+
+nest_asyncio.apply()  # bad practice, but the situation is problematic
+
+
 @neovim.plugin
 class SpeechToTextPlugin(object):
+
     def __init__(self, nvim):
         self.nvim = nvim
         self.r = sr.Recognizer()
-        self.engine=None
-        import debugpy
+        self.engine = None
+
         debugpy.listen(("localhost", 5678))
 
-        try: 
+        try:
             with open(DEFAULT_CONFIG_PATH) as f:
                 config = yaml.load(f, Loader=yaml.FullLoader)
         except FileNotFoundError:
@@ -38,12 +45,12 @@ class SpeechToTextPlugin(object):
 
     @neovim.command("ConfigureVoice", range="", nargs="*", sync=True)
     def configure_params(self, args, range):
-        if len(args)==0:
-            self.nvim.out_write("Current engine is %s\n" % (self.engine,))
-            self.nvim.out_write( "params %s\n" %  (self.args,))
+        if len(args) == 0:
+            self.nvim.out_write("Current engine is %s\n" % (self.engine, ))
+            self.nvim.out_write("params %s\n" % (self.args, ))
             return
         eng = args[0]
-        if not eng in self.engines:
+        if eng not in self.engines:
             self.nvim.err_write("Error: engine not found\n")
             return
         if len(args) >= 1:
@@ -58,6 +65,7 @@ class SpeechToTextPlugin(object):
 
             self.engine = self.engines[eng]
             self.nvim.out_write("Engine set to %s\n" % eng)
+
     @staticmethod
     async def async_task_and_spin(wait_for_inp, some_task, args):
         loop = asyncio.get_event_loop()
@@ -69,9 +77,8 @@ class SpeechToTextPlugin(object):
             event_task = loop.run_in_executor(pool, wait_for_inp)
             # Wait for the task or the event to complete
             done, pending = await asyncio.wait(
-                {task, event_task}, return_when=asyncio.FIRST_COMPLETED
-            )
-            print('returned')
+                {task, event_task}, return_when=asyncio.FIRST_COMPLETED)
+            print("returned")
             # Cancel any pending tasks
             for t in pending:
                 t.cancel()
@@ -79,14 +86,15 @@ class SpeechToTextPlugin(object):
                 result = await task
                 return result
         finally:
-            pool.shutdown(wait=False,cancel_futures=True)
+            pool.shutdown(wait=False, cancel_futures=True)
+
             def run_me(pool):
                 try:
                     pool.shutdown(wait=True)
                 except:
                     pass
 
-            loop.run_in_executor(None,run_me,pool)
+            loop.run_in_executor(None, run_me, pool)
         return None
 
     @neovim.command("Voice", range="", nargs="*", sync=True)
@@ -96,20 +104,20 @@ class SpeechToTextPlugin(object):
         start_line, end_line = rgn
 
         try:
-            text=self.get_voice()
-        except Exception as e: 
+            text = self.get_voice()
+        except Exception as e:
             self.nvim.out_write("Error: %s\n" % e)
             return
 
-
-        if text is None or (len(text)==0):
+        if text is None or (len(text) == 0):
             return
 
         lines = text.split("\r")
 
         if len(lines) < end_line + 1 - start_line:
             # Remove lines in excess:
-            self.nvim.call("deletebufline", "%", start_line + len(lines), end_line)
+            self.nvim.call("deletebufline", "%", start_line + len(lines),
+                           end_line)
 
         for i in range(len(lines) - (end_line + 1 - start_line)):
             # Insert missing blank lines:
@@ -119,9 +127,8 @@ class SpeechToTextPlugin(object):
             # Replace lines with the text:
             self.nvim.call("setbufline", "%", start_line + index, line)
 
-
     @neovim.function("GetVoice", sync=True)
-    def get_voice(self,args=[]):
+    def get_voice(self, args=[]):
         if self.engine is None:
             self.nvim.err_write("Error: engine not set\n")
             return ""
@@ -135,12 +142,11 @@ class SpeechToTextPlugin(object):
                 # the surrounding noise level
                 self.r.adjust_for_ambient_noise(source2, duration=0.2)
 
-
                 # Using google to recognize audio
 
                 def use_engine():
                     try:
-                        #listens for the user's input
+                        # listens for the user's input
                         audio2 = self.r.listen(source2)
                         return self.engine(audio2, **self.args)
                     except:
@@ -148,14 +154,15 @@ class SpeechToTextPlugin(object):
 
                 def wait_for_ended():
                     try:
-                       keyboard.wait('esc')
+                        keyboard.wait("esc")
                     except:
                         pass
 
                 loop = asyncio.get_event_loop()
-                text= loop.run_until_complete(self.async_task_and_spin(wait_for_ended,use_engine,()))
+                text = loop.run_until_complete(
+                    self.async_task_and_spin(wait_for_ended, use_engine, ()))
 
-                if text is None or (len(text)==0):
+                if text is None or (len(text) == 0):
                     return ""
                 return text
 
