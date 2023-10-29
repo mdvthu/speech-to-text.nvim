@@ -1,31 +1,42 @@
 # speech-to-text.nvim
-Neovim plugin offer  speech to text capability using [speech_recognition](https://github.com/Uberi/speech_recognition). 
+Neovim plugin offer speech to text capability using Python
+[speech_recognition](https://github.com/Uberi/speech_recognition). 
 
-You can select your favorite engine for speech-to-text : whisper, openai, google, azure etc.. 
-(All supported engines in speech recognition)
+You can select your favorite engine for speech-to-text:
+[OpenAI whisper](https://github.com/openai/whisper), Google, [Vosk
+API](https://github.com/alphacep/vosk-api/) etc.. (supported
+*speech_recognition* engines)
 
-This is basically a tin wrapper around speech_recognition. So, you really want to check out its documentation. 
-Should work OOB with whisper function. 
+This is basically a tin wrapper around speech_recognition. So, you really want
+to check out its
+[documentation](https://github.com/Uberi/speech_recognition#readme). Should
+work OOB with whisper function. 
 
-Uses keyboard package , which I think on linux requires admin. Luckily, only used for detection of ESC so ESC might not work. 
-Tested on windows only (but should work).
+Uses [keyboard package](https://pypi.org/project/keyboard/), which equires
+admin on Linux. Luckily, only used for detection of ESC so ESC might not work.
 
 ## Installation
 
-Use
+Using [vim-plug](https://github.com/junegunn/vim-plug):
 ```
 Plug 'eyalk11/speech-to-text.nvim'
 ```
+or with [Vundle](https://github.com/VundleVim/Vundle.vim):
+```
+Plugin 'eyalk11/speech-to-text.nvim'
+```
 
-And then: 
 
+To install Python dependencies:
 ```
 !pip install -r ~/.vim/plugged/speech-to-text.nvim/requirements.txt
 :UpdateRemotePlugins
 ```
-(Those are minimal requirements. It may need additional - see [speech_recognition](https://github.com/Uberi/speech_recognition))
+(Those are minimal requirements. It may need additional - see
+[speech_recognition](https://github.com/Uberi/speech_recognition))
 
 ### Alternative 
+
 Try  
 ```
 Plug 'eyalk11/speech-to-text.nvim', {'do': ':!python -m pip install -r ./requirements.txt \| :UpdateRemotePlugins'}
@@ -48,9 +59,9 @@ The enginename and params would be used for the next Voice/GetVoice call.
 
 ## Mappings
 
-It doesn't add by default.
+Mappings are not added by default.
 
-You may use:
+Suggested mappings:
 ```
 nmap <c-L> :Voice<CR>
 imap <C-L> <C-R>=GetVoice()<CR>
