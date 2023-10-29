@@ -13,7 +13,7 @@ to check out its
 work OOB with whisper function. 
 
 Uses [keyboard](https://pypi.org/project/keyboard/), which requires admin on
-Linux. Luckily, only used for detection of <ESC> so without root access you may
+Linux. Luckily, only used for detection of \<ESC\> so without root access you may
 only lose the escape key functionality.
 
 ## Installation
