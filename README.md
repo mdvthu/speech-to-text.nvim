@@ -12,9 +12,9 @@ to check out its
 [documentation](https://github.com/Uberi/speech_recognition#readme). Should
 work OOB with whisper function. 
 
-Uses [keyboard package](https://pypi.org/project/keyboard/), which equires
-admin on Linux. Luckily, only used for detection of <ESC> so without root
-access you may loose the escape key functionality.
+Uses [keyboard](https://pypi.org/project/keyboard/), which requires admin on
+Linux. Luckily, only used for detection of <ESC> so without root access you may
+only lose the escape key functionality.
 
 ## Installation
 
